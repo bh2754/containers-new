@@ -1,5 +1,5 @@
 # Force using 3.10
-FROM ghcr.io/bh2754/alpine:3.17.3
+FROM ghcr.io/bh2754/alpine:3.19.0
 
 ARG TARGETPLATFORM
 ARG VERSION
