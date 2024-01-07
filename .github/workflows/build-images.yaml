@@ -162,7 +162,11 @@ jobs:
 
       - name: Setup Goss
         if: ${{ matrix.image.tests_enabled }}
+<<<<<<< HEAD
         uses: e1himself/goss-installation-action@v1
+=======
+        uses: e1himself/goss-installation-action@fbb6fb55d3e59c96045b2500eeb8ce0995d99ac1 # v1.2.1
+>>>>>>> 1bbb80c329714ad19a2b9b7e407fcdfb7c31a02e
         with:
           version: latest
 
@@ -233,7 +237,11 @@ jobs:
 
       - name: Upload Digest
         if: ${{ inputs.pushImages}}
+<<<<<<< HEAD
         uses: actions/upload-artifact@v3
+=======
+        uses: actions/upload-artifact@c7d193f32edcb7bfad88892161225aeda64e9392 # v4.0.0
+>>>>>>> 1bbb80c329714ad19a2b9b7e407fcdfb7c31a02e
         with:
           name: ${{ matrix.image.name }}
           path: /tmp/${{ matrix.image.name }}/*
@@ -257,7 +265,11 @@ jobs:
         run: echo "LOWERCASE_REPO_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> $GITHUB_ENV
 
       - name: Download Digests
+<<<<<<< HEAD
         uses: actions/download-artifact@v3
+=======
+        uses: actions/download-artifact@f44cd7b40bfd40b6aa1cc1b9b5b7bf03d3c67110 # v4.1.0
+>>>>>>> 1bbb80c329714ad19a2b9b7e407fcdfb7c31a02e
         with:
           name: ${{ matrix.image.name }}
           path: /tmp/${{ matrix.image.name }}
