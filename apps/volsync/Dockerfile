@@ -21,7 +21,7 @@ RUN \
 FROM docker.io/rclone/rclone:1.65.1 as rclone
 FROM docker.io/restic/restic:0.16.3 as restic
 
-FROM docker.io/library/alpine:3.19.0
+FROM docker.io/library/alpine:3.19.1
 ARG TARGETPLATFORM
 ARG VERSION
 ARG CHANNEL
