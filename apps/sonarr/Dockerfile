@@ -1,4 +1,4 @@
-FROM ghcr.io/bh2754/ubuntu:jammy-20231128@sha256:faec95113a1d1c249dd85b88c5beec3ea029b8ab907592b23d06426f0a92ae4a
+FROM ghcr.io/bh2754/alpine:rolling@sha256:81a3862c3a27e8ebc9a67f78f20ce36af2bdc25087d9195ee7c1379e0318c0b8
 
 ARG TARGETPLATFORM
 ARG VERSION
@@ -10,43 +10,27 @@ ENV \
     SONARR__PORT="8989" \
     SONARR__ANALYTICS_ENABLED="False"
 
-# hadolint ignore=DL3008,DL3015,SC2086
+#hadolint ignore=DL3018
+RUN apk add --no-cache ca-certificates icu-libs libintl sqlite-libs xmlstarlet
+#hadolint ignore=DL3059
 RUN \
-    apt-get -qq update \
-    && apt-get -qq install -y gnupg \
-    && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 3FA7E0328081BFF6A14DA29AA6A19B38D3D831EF \
-    && echo "deb https://download.mono-project.com/repo/ubuntu stable-focal main" | tee /etc/apt/sources.list.d/mono-official.list \
-    && apt-get -qq update \
-    && \
-    apt-get -qq install -y \
-        ca-certificates \
-        mono-complete \
-        ca-certificates-mono \
-        libmediainfo0v5 \
-        xmlstarlet \
+    case "${TARGETPLATFORM}" in \
+        'linux/amd64') export ARCH='x64' ;; \
+        'linux/arm64') export ARCH='arm64' ;; \
+    esac \
     && \
     mkdir -p /app/bin \
     && \
-    curl -fsSL "https://download.sonarr.tv/v3/${SONARR__BRANCH}/${VERSION}/Sonarr.${SONARR__BRANCH}.${VERSION}.linux.tar.gz" \
+    curl -fsSL "https://services.sonarr.tv/v1/update/${SONARR__BRANCH}/download?version=${VERSION}&os=linuxmusl&runtime=netcore&arch=${ARCH}" \
         | tar xzf - -C /app/bin --strip-components=1 \
-    && \
-    printf "UpdateMethod=docker\nBranch=%s\nPackageVersion=%s\nPackageAuthor=[onedr0p](https://github.com/onedr0p)\n" "${SONARR__BRANCH}" "${VERSION}" > /app/package_info \
-    && \
-    gpgconf --kill all \
-    && apt-get remove -y gnupg \
-    && apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
-    && apt-get autoremove -y \
-    && apt-get clean \
     && \
     rm -rf \
         /app/bin/Sonarr.Update \
-        /tmp/* \
-        /var/lib/apt/lists/* \
-        /var/tmp/ \
+    && \
+    printf "UpdateMethod=docker\nBranch=%s\nPackageVersion=%s\nPackageAuthor=[bh2754](https://github.com/bh2754)\n" "${SONARR__BRANCH}" "${VERSION}" > /app/package_info \
     && chown -R root:root /app \
     && chmod -R 755 /app \
-    && printf "umask %d\n" "${UMASK}" >> /etc/bash.bashrc
+    && rm -rf /tmp/*
 
 USER kah
 
@@ -54,4 +38,4 @@ COPY ./apps/sonarr/config.xml.tmpl /app/config.xml.tmpl
 COPY ./apps/sonarr/entrypoint.sh /entrypoint.sh
 CMD ["/entrypoint.sh"]
 
-LABEL org.opencontainers.image.source="https://github.com/Sonarr/Sonarr"
+LABEL org.opencontainers.image.title="${SONARR__INSTANCE_NAME} (${SONARR__BRANCH})"
